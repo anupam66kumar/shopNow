@@ -35,4 +35,12 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            script {
+                build job: 'ShopNow-App-Deployment', wait: false
+            }
+        }
+    }
 }
