@@ -1,0 +1,52 @@
+---
+- name: Update kubeconfig for EKS Cluster
+  ansible.builtin.command:
+    cmd: >
+      aws eks update-kubeconfig 
+      --region {{ aws_region }} 
+      --name {{ cluster_name }}
+  changed_when: false
+
+- name: Verify cluster node availability
+  ansible.builtin.command:
+    cmd: kubectl get nodes
+  register: node_check
+  changed_when: false
+
+- name: Display active nodes
+  ansible.builtin.debug:
+    var: node_check.stdout_lines
+
+- name: Install Metrics Server (required for HPA and top pods)
+  ansible.builtin.command:
+    cmd: kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+  register: metrics_result
+  changed_when: "'created' in metrics_result.stdout or 'configured' in metrics_result.stdout"
+
+- name: Install NGINX Ingress Controller for AWS
+  ansible.builtin.command:
+    cmd: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/aws/deploy.yaml
+  register: ingress_result
+  changed_when: "'created' in ingress_result.stdout or 'configured' in ingress_result.stdout"
+
+- name: Create gp3 StorageClass manifest for MongoDB persistent volumes
+  ansible.builtin.copy:
+    dest: /tmp/storageclass-gp3.yaml
+    content: |
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: gp3
+        annotations:
+          storageclass.kubernetes.io/is-default-class: "true"
+      provisioner: ebs.csi.aws.com
+      volumeBindingMode: WaitForFirstConsumer
+      parameters:
+        type: gp3
+    mode: '0644'
+
+- name: Apply gp3 StorageClass
+  ansible.builtin.command:
+    cmd: kubectl apply -f /tmp/storageclass-gp3.yaml
+  register: sc_result
+  changed_when: "'created' in sc_result.stdout or 'configured' in sc_result.stdout"

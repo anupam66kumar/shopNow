@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'ap-southeast-2'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/anupam66kumar/shopNow.git'
+            }
+        }
+
+        stage('Verify Environment') {
+            steps {
+                sh 'ansible --version'
+                sh 'aws sts get-caller-identity'
+            }
+        }
+
+        stage('Execute Configuration Playbook') {
+            steps {
+                dir('ansible') {
+                    sh 'ansible-playbook playbook.yml'
+                }
+            }
+        }
+
+        stage('Validate Cluster Controllers') {
+            steps {
+                sh 'kubectl get sc'
+                sh 'kubectl get pods -n kube-system'
+                sh 'kubectl get pods -n ingress-nginx'
+            }
+        }
+    }
+}
