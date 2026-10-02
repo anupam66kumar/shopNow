@@ -13,21 +13,10 @@ module "eks" {
   subnet_ids               = module.vpc.private_subnets
   control_plane_subnet_ids = module.vpc.public_subnets
 
-  # Gives current user / cluster creator admin rights
+  # Automatically gives Jenkins (cluster creator) full cluster admin access
   enable_cluster_creator_admin_permissions = true
 
-  # Map Jenkins EC2 IAM Role to Cluster Admin
-  access_entries = {
-    jenkins_admin = {
-      principal_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Jenkins-Capstone-Role"
-      policy_associations = {
-        admin_policy = {
-          policy_arn   = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = { type = "cluster" }
-        }
-      }
-    }
-  }
+  # (Explicit access_entries block removed to avoid the 409 conflict)
 
   eks_managed_node_groups = {
     spot_nodes = {
@@ -37,7 +26,10 @@ module "eks" {
       desired_size = 2
 
       instance_types = ["t3.medium"]
-      capacity_type  = "SPOT" # Cost optimization
+      capacity_type  = "SPOT"
+
+      # Explicitly set the supported AL2023 AMI for Kubernetes 1.30+
+      ami_type = "AL2023_x86_64_STANDARD"
 
       subnet_ids = module.vpc.private_subnets
 
