@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'ACTION', choices: ['apply', 'plan', 'destroy'], description: 'Choose Terraform action to execute')
+    }
+
+    environment {
+        AWS_DEFAULT_REGION = 'ap-southeast-2'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/anupam66kumar/shopNow.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+
+        stage('Terraform Action') {
+            steps {
+                dir('terraform') {
+                    script {
+                        if (params.ACTION == 'apply') {
+                            sh 'terraform apply -auto-approve tfplan'
+                        } else if (params.ACTION == 'destroy') {
+                            input message: 'Are you sure you want to DESTROY all cluster infrastructure?', ok: 'Yes, Destroy'
+                            sh 'terraform destroy -auto-approve'
+                        } else {
+                            echo 'Plan completed. No infrastructure changes applied.'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
