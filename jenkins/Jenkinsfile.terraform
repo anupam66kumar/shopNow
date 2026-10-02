@@ -49,4 +49,15 @@ pipeline {
             }
         }
     }
+
+    // Automatically triggers Ansible when Terraform Apply succeeds
+    post {
+        success {
+            script {
+                if (params.ACTION == 'apply') {
+                    build job: 'ShopNow-Config-Management', wait: false
+                }
+            }
+        }
+    }
 }
