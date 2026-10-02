@@ -22,6 +22,9 @@ spec:
         ports:
         - containerPort: 5000
         env:
+        # Pass both MONGODB_URI and MONGO_URI so whichever the code expects is populated
+        - name: MONGODB_URI
+          value: "mongodb://mongo:27017/shopnow"
         - name: MONGO_URI
           value: "mongodb://mongo:27017/shopnow"
         - name: PORT
@@ -35,15 +38,15 @@ spec:
             memory: 256Mi
         readinessProbe:
           httpGet:
-            path: /health
+            path: /api/health
             port: 5000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 10
         livenessProbe:
           httpGet:
-            path: /health
+            path: /api/health
             port: 5000
-          initialDelaySeconds: 15
+          initialDelaySeconds: 20
           periodSeconds: 20
 ---
 apiVersion: v1
