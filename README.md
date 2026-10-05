@@ -59,15 +59,15 @@ The objective of this project is to build an automated, zero-touch deployment li
 
 ## **2\. System Architecture**
 
+<img width="4096" height="8732" alt="e6ab63e5-e53e-4c2d-9c61-142636199c92" src="https://github.com/user-attachments/assets/c41988d1-cf59-473e-a356-066b99723794" />
 
-
-## 
 
 ## 
 
 ## **3\. Repository Directory Structure**
 
-![][image2]
+<img width="3644" height="4932" alt="2dff7559-8370-492c-bf45-1917f1b6d69a" src="https://github.com/user-attachments/assets/0403ba10-a649-44fa-86dc-eaabe6966dc9" />
+
 
 ## 
 
@@ -90,10 +90,14 @@ The objective of this project is to build an automated, zero-touch deployment li
 
 The deployment process follows a 3-tier chained architecture:
 
-![][image3]
+<img width="734" height="693" alt="carbon (4)" src="https://github.com/user-attachments/assets/29459a5e-a0a0-4b4e-95a0-280d0aa8e234" />
 
+##
+
+##
 \[SCREENSHOT: Jenkins Pipelines\]  
-![][image4]
+
+<img width="1920" height="1080" alt="Screenshot from 2026-10-02 21-13-21" src="https://github.com/user-attachments/assets/e6a6f299-7ae0-46b3-a844-4533e3817532" />
 
 ## 
 
@@ -110,7 +114,8 @@ The deployment process follows a 3-tier chained architecture:
 ### 
 
 \[SCREENSHOT: Jenkins master EC2 Deployed\]  
-![][image5]
+<img width="1598" height="551" alt="Screenshot from 2026-10-02 19-36-08" src="https://github.com/user-attachments/assets/069b2df6-a3a8-487a-9f94-ec98d2b57742" />
+
 
 ### **6.1 Step 1: Infrastructure Deployment (Terraform)**
 
@@ -183,20 +188,22 @@ The deployment process follows a 3-tier chained architecture:
 >    kubectl rollout status deployment/admin \-n shopnow-demo \--timeout=120s
 
 \[SCREENSHOT: EKS Cluster Deployed\]  
-
-
+<img width="1284" height="3672" alt="project4-shop eks cluster" src="https://github.com/user-attachments/assets/1f7f3828-4518-4bc5-8142-83482a9465d8" />
 
 
 \[SCREENSHOT: EKS Nodes on EC2\]  
-![][image7]
+<img width="1920" height="1080" alt="Screenshot from 2026-10-02 21-47-39" src="https://github.com/user-attachments/assets/8fb962e3-b6af-44a3-8fd8-d7e3c3be9508" />
+
 
 \[SCREENSHOT: Customer Panel of ShopNow App\]  
-![][image8]
+<img width="1920" height="1080" alt="Screenshot from 2026-10-02 20-47-42" src="https://github.com/user-attachments/assets/ff95c960-16ef-41ec-9bf6-2f108dfabcf7" />
+
 
 ## 
 
 \[SCREENSHOT: Admin Panel of ShopNow App\]  
-![][image9]
+<img width="1920" height="1080" alt="Screenshot from 2026-10-02 20-47-59" src="https://github.com/user-attachments/assets/5cd783a2-9f8a-4708-86e1-0e273178ab34" />
+
 
 ## 
 
@@ -231,8 +238,10 @@ The monitoring stack is deployed via Helm using the kube-prometheus-stack chart.
 
 >   
 \[SCREENSHOT: Grafana Dashboard showing CPU and Memory Utilization for the nodes in Shop-Now-Demo Namespace using Prometheus as DataSource\]  
-![][image10]  
+<img width="1920" height="1080" alt="Screenshot from 2026-10-02 21-12-06" src="https://github.com/user-attachments/assets/bf3f1611-42f9-49ed-ba35-5ae5811525d3" />
 > 
+
+##
 
 ## **8\. Resilience & Autoscaling Testing**
 
@@ -271,10 +280,10 @@ Generate simulated HTTP traffic to trigger CPU thresholds (\$\>75\\%\$ utilizati
 *Replica count automatically scaled from 2 to 4 pods once CPU target spiked past 75%. Upon stopping the load generator, replicas cooled down back to 2\.*
 
 \[SCREENSHOT: HPA and LoadTest\]  
-![][image11]
+<img width="1833" height="801" alt="Screenshot from 2026-10-02 21-19-43" src="https://github.com/user-attachments/assets/19264601-4fcf-4c78-bc7d-189d7dc047ee" />
+<img width="1833" height="919" alt="Screenshot from 2026-10-02 21-26-02" src="https://github.com/user-attachments/assets/acdbc310-1c0d-4794-811c-d61024578693" />
+<img width="1833" height="524" alt="Screenshot from 2026-10-02 21-27-00" src="https://github.com/user-attachments/assets/ddc8aae6-7dd7-4922-ace4-e45c1360df7c" />
 
-![][image12]  
-![][image13]
 
 ## 
 
@@ -290,7 +299,7 @@ During the lifecycle of this deployment, several technical bottlenecks were diag
 * **Root Cause:** The jenkins system user was not an active member of the host's docker UNIX group.  
 * **Resolution:** Executed sudo usermod \-aG docker jenkins, set socket permissions with sudo chmod 666 /var/run/docker.sock, and restarted docker and jenkins services.
 
-  ### 
+### 
 
 ### **9.2. MongoDB Volume Stuck in Pending**
 
@@ -316,7 +325,7 @@ During the lifecycle of this deployment, several technical bottlenecks were diag
 * **Root Cause:** The EKS Node Security Group lacked ingress rules allowing cross-node overlay traffic between worker instances residing in different subnets/availability zones.  
 * **Resolution:** Added a security group rule allowing all traffic (-1) where the source group was the Node Security Group itself, and permitted the VPC CIDR 10.0.0.0/16.
 
-  ### 
+### 
 
 ### **9.5. Single-Page Application (SPA) Sub-path 404s**
 
@@ -324,7 +333,7 @@ During the lifecycle of this deployment, several technical bottlenecks were diag
 * **Root Cause:** React was built with PUBLIC\_URL=/project4, but the ingress controller lacked regex path stripping.  
 * **Resolution:** Updated k8s/ingress/ingress.yaml to include regex capture groups path: /project4(/|$)(.*)alongsideannotationnginx.ingress.kubernetes.io/rewrite-target:/$2\.
 
-  ## 
+## 
 
 ## **10\. Resource Teardown**
 
